@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Subagent Suite",
+    "description": "Model-pool load balancing, a subagent management UI, health probing and failure revival. One switch for three components."
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "name": "dsh-subagent-ops",
+  "version": "1.0.0",
+  "description": "子代理运维套件：模型池均衡寻路 + 管理界面 + 健康探针与失败续命。一个 bundle 三个开关，按需启停。",
+  "type": "module",
+  "main": "lib/index.mjs",
+  "engines": {
+    "node": "^22.19 || >=24",
+    "dsh": ">=0.2.2-rc.1 <0.3.0-0"
+  },
+  "exports": {
+    ".": "./lib/index.mjs",
+    "./client": "./lib/client.js",
+    "./pool": "./lib/pool.mjs",
+    "./watch": "./lib/watch.mjs",
+    "./package.json": "./package.json",
+    "./icon": "./icon.svg",
+    "./locale/*.json": "./locale/*.json"
+  },
+  "files": [
+    "lib",
+    "locale",
+    "icon.svg",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-slots"
+      ]
+    }
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "cordis",
+    "plugin",
+    "subagent",
+    "model-pool",
+    "routing",
+    "health-check"
+  ],
+  "author": "CangXuan1231 <1286743184@qq.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/a1286743184/dsh-subagent-ops.git"
+  },
+  "homepage": "https://github.com/a1286743184/dsh-subagent-ops#readme",
+  "bugs": {
+    "url": "https://github.com/a1286743184/dsh-subagent-ops/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

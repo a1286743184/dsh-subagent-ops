@@ -1,0 +1,37 @@
+# dsh-subagent-ops bundle patch
+#
+# 一个 bundle 挂三个 row，各自独立开关（不是「一个开关管三个」）：
+#   subagent-model-pool —— 关掉只停寻路，池状态仍在内存里但不分配新路由
+#   subagent-pool-ui    —— 关掉只丢管理界面与 /api/subagent-pool
+#   subagent-watch      —— 关掉只停健康探针与续命
+# 三者无相互依赖，可以单独关。
+#
+# 为什么包根那一行 id 叫 subagent-pool-ui、name 却是包名：
+#   dsh-client-modules 只在「specifier 恰好等于包名」的那一行挂载浏览器半侧
+#   （exports["./client"]），所以 name 必须是裸包名。
+#   id 沿用 subagent-pool-ui 只是为了不动 profile 里已有的 id-targeted override。
+#
+# 浏览器半侧注册 id 必须等于包名（client.js 里 __ModuleLoader__.load 的 id），
+# 不是这个 entry id；两者混淆会导致 duplicate factory registration 使 web boot 失败。
+#
+# 配置不写在这里：全部由 profile 的 cordis.patch.yml 以 id-targeted override 提供，
+# 这样重装/升级本包不会冲掉用户的调参（池文件路径、告警文件、续命预算等）。
+#
+# 组件职责：
+#   pool  —— 均衡寻路（agent.model.select 持久选择）、冷却、粘滞、跨进程租约
+#   包根  —— 把 pool 的内存管理面暴露成 /api/subagent-pool，并挂浏览器界面
+#   watch —— 健康探针、卡住催办、上游失败续命、跨会话告警
+- insert:
+    - id: subagent-model-pool
+      name: dsh-subagent-ops/pool
+    # 双挂载守卫：若已有别的 row 也挂 dsh-subagent-ops 这个裸包名，本行自动让位。
+    # 两条裸名 row 会触发 client-modules 的
+    # "package dsh-subagent-ops resolves from multiple active Loader sources"，
+    # 或 webserver 的 duplicate prefix route，二者都会让整棵插件树启动失败。
+    # 写法对齐 dsh-better-sidebar；守卫只能看到排在它前面的 row，故本 bundle
+    # 必须排在聚合包之后（dsh plugin add 默认追加在末尾，符合该前提）。
+    - id: subagent-pool-ui
+      name: dsh-subagent-ops
+      disabled: !!js "[...ctx.loader.entries()].some((e) => e.options.name === 'dsh-subagent-ops' && e.options.id !== 'subagent-pool-ui' && !e.disabled)"
+    - id: subagent-watch
+      name: dsh-subagent-ops/watch
